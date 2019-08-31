@@ -1,2 +1,2 @@
 # learn-restful-webservices
-to learn restful web-services with spring boot 
+this project is to learn restful web-services with spring boot 
