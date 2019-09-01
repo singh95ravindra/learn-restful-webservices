@@ -31,3 +31,12 @@ public class HelloWorldContoller {
 }
 
 also annotation of mapping is also updated to @GetMapping, there are mapping annotations are available corresponding to Http methods.
+
+#Step-3: Enhance 'HelloWorldController' to accept path-variable
+
+below method is added to do so
+
+	@GetMapping("/hello-world-bean/path-variable/{name}")
+	public HelloWorldBean helloWorldBean(@PathVariable String name) {
+		return new HelloWorldBean("Hello " + name);
+	}
