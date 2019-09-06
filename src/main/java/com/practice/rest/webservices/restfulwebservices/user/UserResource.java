@@ -22,12 +22,17 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.practice.rest.webservices.restfulwebservices.exception.UserNotFoundException;
+import com.practice.rest.webservices.restfulwebservices.post.Post;
+import com.practice.rest.webservices.restfulwebservices.post.PostRepository;
 
 @RestController
 public class UserResource {
 
 	@Autowired
 	private UserRepository userRepository;
+
+	@Autowired
+	private PostRepository postRepository;
 
 	@GetMapping("/users")
 	public List<User> retrieveAllUsers() {
@@ -47,7 +52,7 @@ public class UserResource {
 	}
 
 	@PostMapping("/users")
-	public ResponseEntity<User> insert(@Valid @RequestBody User user) {
+	public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
 
 		final User savedUser = userRepository.save(user);
 
@@ -60,6 +65,31 @@ public class UserResource {
 	@DeleteMapping("/users/{id}")
 	public void deleteUser(@PathVariable long id) {
 		userRepository.deleteById(id);
+	}
+
+	@GetMapping("/users/{id}/posts")
+	public List<Post> retrieveAllPostsForUser(@PathVariable long id) {
+		final Optional<User> findById = userRepository.findById(id);
+		if (!findById.isPresent()) {
+			throw new UserNotFoundException("Id-" + id);
+		}
+
+		return findById.get().getPosts();
+	}
+
+	@PostMapping("/users/{id}/posts")
+	public ResponseEntity<Post> createPost(@PathVariable long id, @Valid @RequestBody Post post) {
+		final Optional<User> findById = userRepository.findById(id);
+		if (!findById.isPresent()) {
+			throw new UserNotFoundException("Id-" + id);
+		}
+		post.setUser(findById.get());
+		postRepository.save(post);
+
+		final URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(post.getId())
+				.toUri();
+
+		return ResponseEntity.created(location).build();
 	}
 
 }
